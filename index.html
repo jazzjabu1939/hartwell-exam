@@ -324,8 +324,8 @@
         }
 
         .question-block.answered {
-            border-color: #2a2a2a;
-            opacity: 0.65;
+            border-color: #2a3348;
+            opacity: 0.7;
         }
 
         .q-meta {
@@ -349,6 +349,16 @@
             font-size: 0.68rem;
             color: #555;
             background: #1a1a1a;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .q-selected-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--accent);
+            background: rgba(240,165,0,0.1);
             padding: 0.2rem 0.5rem;
             border-radius: 4px;
             display: none;
@@ -391,7 +401,7 @@
             color: #fff;
         }
 
-        .choice-btn.locked { cursor: not-allowed; }
+        .choice-btn.locked { cursor: not-allowed; opacity: 0.5; }
 
         .choice-letter {
             font-family: 'JetBrains Mono', monospace;
@@ -643,8 +653,8 @@
         <div id="alpha-questions-container"></div>
 
         <div class="submit-area">
-            <p>Answer all 5 questions to continue to Situation Beta.</p>
-            <button class="btn" id="alpha-next-btn" onclick="showSituation('beta')" disabled>Proceed to Situation Beta →</button>
+            <p>Select an answer for each question. You may change your selection before confirming.</p>
+            <button class="btn" id="alpha-next-btn" onclick="confirmAnswers('alpha','alpha-answered','alpha-next-btn', function(){ showSituation('beta'); })" disabled>Confirm Answers &amp; Proceed to Situation Beta →</button>
         </div>
     </div>
 </div>
@@ -713,8 +723,8 @@
         <div id="beta-questions-container"></div>
 
         <div class="submit-area">
-            <p>Answer all 5 questions to continue to Situation Gamma.</p>
-            <button class="btn" id="beta-next-btn" onclick="showSituation('gamma')" disabled>Proceed to Situation Gamma →</button>
+            <p>Select an answer for each question. You may change your selection before confirming.</p>
+            <button class="btn" id="beta-next-btn" onclick="confirmAnswers('beta','beta-answered','beta-next-btn', function(){ showSituation('gamma'); })" disabled>Confirm Answers &amp; Proceed to Situation Gamma →</button>
         </div>
     </div>
 </div>
@@ -784,8 +794,8 @@
         <div id="gamma-questions-container"></div>
 
         <div class="submit-area">
-            <p>Answer all 5 questions to continue to Situation Delta.</p>
-            <button class="btn" id="gamma-next-btn" onclick="showSituation('delta')" disabled>Proceed to Situation Delta →</button>
+            <p>Select an answer for each question. You may change your selection before confirming.</p>
+            <button class="btn" id="gamma-next-btn" onclick="confirmAnswers('gamma','gamma-answered','gamma-next-btn', function(){ showSituation('delta'); })" disabled>Confirm Answers &amp; Proceed to Situation Delta →</button>
         </div>
     </div>
 </div>
@@ -855,9 +865,9 @@
         <div id="delta-questions-container"></div>
 
         <div class="submit-area">
-            <p id="submit-warning" class="unanswered-warning" style="display:none;">Please answer all 5 questions before submitting.</p>
-            <p>When you have answered all 20 questions, submit your exam.</p>
-            <button class="btn" id="delta-submit-btn" onclick="submitExam()" disabled>Submit Exam →</button>
+            <p id="submit-warning" class="unanswered-warning" style="display:none;">Please select an answer for all 5 questions before submitting.</p>
+            <p>Select an answer for each question. You may change your selection before submitting.</p>
+            <button class="btn" id="delta-submit-btn" onclick="confirmAnswers('delta','delta-answered','delta-submit-btn', submitExam)" disabled>Confirm Answers &amp; Submit Exam →</button>
         </div>
     </div>
 </div>
@@ -1484,11 +1494,15 @@ function chooseDelta(choice) {
 
 // ─── Question renderer ────────────────────────────────────────────────────
 
+// Tracks pending (unconfirmed) selections per section: { qIndex: letter }
+const pending = { alpha: {}, beta: {}, gamma: {}, delta: {} };
+
 function renderQuestions(section, questionKey, containerId, answerKey, counterId, btnId) {
   const qs = questions[questionKey];
   const container = document.getElementById(containerId);
   container.innerHTML = '';
   state.answers[section] = {};
+  pending[section] = {};
 
   qs.forEach((q, i) => {
     const div = document.createElement('div');
@@ -1505,7 +1519,8 @@ function renderQuestions(section, questionKey, containerId, answerKey, counterId
     div.innerHTML = `
       <div class="q-meta">
         <div class="q-num">QUESTION ${i + 1} OF 5</div>
-        <div class="q-locked" id="lock-${section}-${i}">LOCKED</div>
+        <div class="q-selected-label" id="sel-label-${section}-${i}">SELECTED</div>
+        <div class="q-locked" id="lock-${section}-${i}">CONFIRMED</div>
       </div>
       <div class="q-stem">${q.stem}</div>
       <div class="choices">${choicesHtml}</div>
@@ -1515,38 +1530,79 @@ function renderQuestions(section, questionKey, containerId, answerKey, counterId
 }
 
 function selectAnswer(section, questionKey, qIndex, letter, counterId, btnId) {
-  // Already answered?
+  // If this question is already confirmed (locked), ignore clicks
   if (state.answers[section][qIndex] !== undefined) return;
 
-  state.answers[section][qIndex] = letter;
+  // Clear previous pending selection visually
+  const prev = pending[section][qIndex];
+  if (prev) {
+    const prevBtn = document.getElementById(`choice-${section}-${qIndex}-${prev}`);
+    if (prevBtn) prevBtn.classList.remove('selected');
+  }
 
-  // Lock all choices for this question
-  const letters = ['A', 'B', 'C', 'D'];
-  letters.forEach(l => {
+  // Record pending selection
+  pending[section][qIndex] = letter;
+
+  // Highlight the selected button
+  ['A','B','C','D'].forEach(l => {
     const btn = document.getElementById(`choice-${section}-${qIndex}-${l}`);
-    if (btn) {
-      btn.classList.add('locked');
-      if (l === letter) btn.classList.add('selected');
-    }
+    if (btn) btn.classList.remove('selected');
+  });
+  const selBtn = document.getElementById(`choice-${section}-${qIndex}-${letter}`);
+  if (selBtn) selBtn.classList.add('selected');
+
+  // Show 'SELECTED' label
+  const selLabel = document.getElementById(`sel-label-${section}-${qIndex}`);
+  if (selLabel) selLabel.style.display = 'block';
+
+  // Update the "confirm all" button readiness (count questions with pending selections)
+  updateConfirmBtn(section, counterId, btnId);
+}
+
+function updateConfirmBtn(section, counterId, btnId) {
+  const pendingCount = Object.keys(pending[section]).length;
+  const confirmedCount = Object.keys(state.answers[section]).length;
+  // Count total selections (confirmed + pending)
+  const totalSelected = new Set([...Object.keys(state.answers[section]), ...Object.keys(pending[section])]).size;
+  document.getElementById(counterId).textContent = totalSelected;
+
+  const btn = document.getElementById(btnId);
+  if (btn) btn.disabled = totalSelected < 5;
+}
+
+function confirmAnswers(section, counterId, btnId, nextAction) {
+  // Merge all pending selections into confirmed answers
+  const qs = Object.keys(pending[section]);
+  if (qs.length === 0 && Object.keys(state.answers[section]).length < 5) return;
+
+  qs.forEach(qIndex => {
+    const letter = pending[section][qIndex];
+    state.answers[section][qIndex] = letter;
+
+    // Lock all choices for this question
+    ['A','B','C','D'].forEach(l => {
+      const btn = document.getElementById(`choice-${section}-${parseInt(qIndex)}-${l}`);
+      if (btn) {
+        btn.classList.add('locked');
+        btn.onclick = null;
+      }
+    });
+
+    // Hide SELECTED label, show CONFIRMED badge
+    const selLabel = document.getElementById(`sel-label-${section}-${qIndex}`);
+    if (selLabel) selLabel.style.display = 'none';
+    const lockEl = document.getElementById(`lock-${section}-${qIndex}`);
+    if (lockEl) lockEl.style.display = 'block';
+
+    // Dim the question block
+    const qBlock = document.getElementById(`q-${section}-${parseInt(qIndex)}`);
+    if (qBlock) qBlock.classList.add('answered');
   });
 
-  // Show locked badge
-  const lockEl = document.getElementById(`lock-${section}-${qIndex}`);
-  if (lockEl) lockEl.style.display = 'block';
+  pending[section] = {};
 
-  // Dim the question block
-  const qBlock = document.getElementById(`q-${section}-${qIndex}`);
-  if (qBlock) qBlock.classList.add('answered');
-
-  // Update counter
-  const answered = Object.keys(state.answers[section]).length;
-  document.getElementById(counterId).textContent = answered;
-
-  // Enable next/submit button if all 5 answered
-  if (answered >= 5) {
-    const btn = document.getElementById(btnId);
-    if (btn) btn.disabled = false;
-  }
+  // Proceed
+  if (nextAction) nextAction();
 }
 
 // ─── Submit ───────────────────────────────────────────────────────────────
@@ -1554,6 +1610,7 @@ function selectAnswer(section, questionKey, qIndex, letter, counterId, btnId) {
 function submitExam() {
   const deltaAnswered = Object.keys(state.answers.delta).length;
   if (deltaAnswered < 5) {
+    // Shouldn't reach here normally, but guard just in case
     document.getElementById('submit-warning').style.display = 'block';
     return;
   }
