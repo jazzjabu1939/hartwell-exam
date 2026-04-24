@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Hartwell Scenario | MANAGMNT 378 Final Exam</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card-bg: #141414;
+            --border: #333;
+            --accent: #00ff88;
+            --warning: #ff6b35;
+            --danger: #ff4444;
+            --text: #e0e0e0;
+            --text-muted: #888;
+            --text-dim: #ccc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .header h1 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .secure-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .secure-badge::before {
+            content: "●";
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent);
+            margin-bottom: 1.25rem;
+            font-weight: 600;
+        }
+
+        .card h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        /* ── Typography ── */
+        .prose { color: var(--text-dim); font-size: 0.96rem; }
+        .prose p { margin-bottom: 1rem; }
+        .prose p:last-child { margin-bottom: 0; }
+        .prose strong { color: #fff; }
+
+        /* ── Auth Screen ── */
+        #auth-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+        }
+
+        #auth-screen .card {
+            text-align: center;
+            max-width: 420px;
+            width: 100%;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            text-align: left;
+        }
+
+        .text-input {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            padding: 0.65rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: #0a0a0a;
+            color: var(--accent);
+            width: 100%;
+            letter-spacing: 0.05em;
+        }
+
+        .text-input:focus { outline: none; border-color: var(--accent); }
+
+        .field-group { margin-bottom: 1.25rem; }
+
+        /* ── Buttons ── */
+        .btn {
+            background: var(--accent);
+            color: #0a0a0a;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            display: inline-block;
+        }
+
+        .btn:hover { background: #00cc6a; transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        .btn:disabled { background: #2a2a2a; color: #555; cursor: not-allowed; transform: none; }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { background: #1a1a1a; color: #fff; border-color: #555; }
+
+        .btn-choice {
+            background: #1a1a1a;
+            color: var(--text);
+            border: 2px solid var(--border);
+            padding: 1.25rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn-choice:hover {
+            border-color: var(--accent);
+            color: #fff;
+            background: #1f1f1f;
+        }
+
+        .btn-choice .choice-label {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent);
+            letter-spacing: 0.1em;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+        }
+
+        .btn-choice .choice-title { font-size: 1rem; font-weight: 700; color: #fff; }
+        .btn-choice .choice-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+        /* ── Warning / Notice ── */
+        .notice {
+            background: rgba(255, 107, 53, 0.08);
+            border: 1px solid var(--warning);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            margin: 1.25rem 0;
+            color: var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .notice strong { color: var(--warning); }
+
+        .notice-info {
+            background: rgba(0, 255, 136, 0.06);
+            border-color: #00cc6a;
+            color: #aaa;
+        }
+
+        /* ── Session ID display ── */
+        .mono-info {
+            font-family: 'JetBrains Mono', monospace;
+            background: #0a0a0a;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin: 0.75rem 0;
+        }
+
+        .mono-info .mi-label {
+            font-size: 0.7rem;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .mono-info .mi-value {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-top: 0.2rem;
+        }
+
+        /* ── Situation header ── */
+        .situation-badge {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent);
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .situation-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        /* ── Progress tracker ── */
+        .progress-track {
+            display: flex;
+            gap: 0.4rem;
+            margin: 0 0 1.5rem;
+        }
+
+        .pt-step {
+            flex: 1;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .pt-step.done { background: var(--accent); }
+        .pt-step.active { background: #006633; }
+
+        /* ── Questions ── */
+        .questions-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1a1a1a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .qh-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+        .qh-value { font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--accent); margin-top: 0.1rem; }
+
+        .question-block {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.2s, opacity 0.2s;
+        }
+
+        .question-block.answered {
+            border-color: #2a2a2a;
+            opacity: 0.65;
+        }
+
+        .q-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .q-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent);
+            background: rgba(0,255,136,0.08);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+        }
+
+        .q-locked {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: #555;
+            background: #1a1a1a;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .q-stem {
+            font-size: 1rem;
+            line-height: 1.65;
+            color: #fff;
+            margin-bottom: 1.25rem;
+        }
+
+        .choices { display: flex; flex-direction: column; gap: 0.5rem; }
+
+        .choice-btn {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: #0f0f0f;
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: left;
+            color: var(--text-muted);
+            font-size: 0.93rem;
+            line-height: 1.5;
+        }
+
+        .choice-btn:hover:not(.locked) {
+            border-color: #555;
+            color: var(--text);
+            background: #161616;
+        }
+
+        .choice-btn.selected {
+            border-color: var(--accent);
+            background: rgba(0,255,136,0.07);
+            color: #fff;
+        }
+
+        .choice-btn.locked { cursor: not-allowed; }
+
+        .choice-letter {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 700;
+            min-width: 1.2rem;
+            margin-top: 0.1rem;
+        }
+
+        .choice-btn.selected .choice-letter { color: var(--accent); }
+
+        /* ── Submit Section ── */
+        .submit-area {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.75rem;
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .submit-area p { color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem; }
+
+        .unanswered-warning { color: var(--warning); font-size: 0.85rem; margin-bottom: 0.75rem; }
+
+        /* ── Results Screen ── */
+        .results-score {
+            text-align: center;
+            padding: 2rem;
+            background: #0a0a0a;
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .score-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .score-label { color: var(--text-muted); margin-top: 0.5rem; font-size: 1rem; }
+
+        .path-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent);
+            padding: 1rem;
+            background: #0a0a0a;
+            border-radius: 6px;
+            margin: 0.75rem 0;
+            word-break: break-word;
+        }
+
+        .answer-review-item {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.88rem;
+        }
+
+        .answer-review-item.correct {
+            background: rgba(0,255,136,0.07);
+            border-left: 3px solid var(--accent);
+        }
+
+        .answer-review-item.incorrect {
+            background: rgba(255,68,68,0.07);
+            border-left: 3px solid var(--danger);
+        }
+
+        .ari-status { font-weight: 700; margin-bottom: 0.2rem; }
+        .ari-status.correct { color: var(--accent); }
+        .ari-status.incorrect { color: var(--danger); }
+        .ari-question { color: #888; font-size: 0.83rem; margin: 0.2rem 0; }
+        .ari-answer { color: #aaa; font-size: 0.8rem; }
+
+        /* ── Error ── */
+        .error-msg { color: var(--danger); font-size: 0.88rem; margin-top: 0.5rem; }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #444;
+            font-size: 0.78rem;
+            border-top: 1px solid #1a1a1a;
+            margin-top: 3rem;
+        }
+
+        .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            .container { padding: 1rem; }
+            .card { padding: 1.25rem; }
+            .header h1 { display: none; }
+            .score-number { font-size: 3.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-left">
+        <div class="logo">HARTWELL</div>
+        <h1>Final Exam — Global Business Strategy</h1>
+    </div>
+    <div class="secure-badge">MGMT 378</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 1: Authentication
+══════════════════════════════════════════════════════ -->
+<div id="auth-screen" class="screen active">
+    <div class="container" style="display:flex;align-items:center;justify-content:center;min-height:80vh;">
+        <div class="card" style="max-width:440px;width:100%;text-align:center;">
+            <h2>Exam Authentication</h2>
+            <p style="color:var(--text-muted);margin-bottom:1.75rem;font-size:0.92rem;">Enter your Student ID and the exam access code to begin.</p>
+
+            <div class="field-group" style="text-align:left;">
+                <label class="field-label" for="student-id">Student ID (8 digits)</label>
+                <input type="text" id="student-id" class="text-input" placeholder="12345678" maxlength="8" autocomplete="off" inputmode="numeric">
+            </div>
+
+            <div class="field-group" style="text-align:left;">
+                <label class="field-label" for="access-code">Access Code</label>
+                <input type="text" id="access-code" class="text-input" placeholder="XXXXXXXXXX" maxlength="12" autocomplete="off" style="text-transform:uppercase;letter-spacing:0.15em;">
+            </div>
+
+            <div class="notice" style="margin-bottom:1.25rem;">
+                <strong>⚠ Grading Notice:</strong> Only your <strong>first attempt</strong> will be graded. Prepare thoroughly before starting.
+            </div>
+
+            <button class="btn" onclick="authenticate()" style="width:100%;">Begin Exam</button>
+            <p id="auth-error" class="error-msg" style="display:none;"></p>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 2: Company Background
+══════════════════════════════════════════════════════ -->
+<div id="background-screen" class="screen">
+    <div class="container">
+        <div class="progress-track" id="progress-track">
+            <div class="pt-step active"></div>
+            <div class="pt-step"></div>
+            <div class="pt-step"></div>
+            <div class="pt-step"></div>
+        </div>
+
+        <div class="card">
+            <div class="situation-badge">Company Background</div>
+            <div class="situation-title">The Hartwell Scenario</div>
+            <div class="prose">
+                <p>Hartwell Consumer Products was founded in 1987 in Columbus, Ohio, by Dennis Hartwell, a former kitchen equipment salesman who believed Americans were being underserved by cheap appliances that broke after two years. He was right. Starting with a single commercial-grade blender built for home use, Hartwell grew steadily into a full line of premium kitchen appliances — blenders, drip and espresso coffee makers, and food processors — sold through specialty kitchen retailers, high-end department stores, and eventually its own direct-to-consumer website.</p>
+                <p>Today the company posts annual revenue of roughly $400 million, is no longer family-run (a professional CEO, Karen Solis, took over in 2019), but still carries the Hartwell name as a mark of craftsmanship in the US "prosumer" market — serious home cooks, culinary school graduates, and small restaurant owners who want near-commercial quality without a commercial price tag.</p>
+                <p>The problem: the US market is getting crowded. Competitors have caught up on quality, direct-to-consumer brands are undercutting on price, and the board sees limited room for organic growth at home. At the same time, new US tariffs on imported goods have quietly made it more expensive for Hartwell's foreign-made competitors to compete in the American market — which has given Hartwell breathing room domestically, but also planted a question in the boardroom: if tariffs are reshaping global trade flows, shouldn't Hartwell be playing offense internationally, not just defense at home?</p>
+                <p>The board has approved the company's first international expansion. <strong>You've just been appointed Director of International Strategy. Welcome.</strong></p>
+            </div>
+        </div>
+
+        <div class="card" style="background:#0f0f0f;">
+            <h2>How This Exam Works</h2>
+            <div class="prose" style="font-size:0.9rem;">
+                <p>You will move through <strong>four situations</strong> — Alpha, Beta, Gamma, and Delta. At each situation, you'll make a strategic choice between two paths. That choice determines which 5 questions you answer.</p>
+                <p><strong>The choices themselves are not graded.</strong> Both paths are legitimate business decisions. Your grade comes from answering the 5 questions that follow your chosen path.</p>
+                <p>Total: 20 graded questions × 2.5 points = <strong>50 points</strong></p>
+            </div>
+
+            <div class="mono-info">
+                <div class="mi-label">Session ID</div>
+                <div class="mi-value" id="bg-session-id">——</div>
+            </div>
+        </div>
+
+        <div style="text-align:center;margin-top:1rem;">
+            <button class="btn" onclick="showSituation('alpha')">I have read the company background. Proceed to Situation Alpha →</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 3: Situation Alpha
+══════════════════════════════════════════════════════ -->
+<div id="alpha-screen" class="screen">
+    <div class="container">
+        <div class="progress-track">
+            <div class="pt-step active"></div>
+            <div class="pt-step"></div>
+            <div class="pt-step"></div>
+            <div class="pt-step"></div>
+        </div>
+
+        <div class="card">
+            <div class="situation-badge">Situation Alpha — Choose Your Market</div>
+            <div class="situation-title">Two Finalists. One Market.</div>
+            <div class="prose">
+                <p>The board didn't hand you a map with a single red pin on it. They handed you a mandate and a budget, and told you to come back with a recommendation. Over the past six months, you and your team have screened 22 countries across four continents. You've looked at market size, income levels, appliance penetration rates, distribution infrastructure, political stability, and ease of doing business. You've interviewed distributors, talked to expats, read State Department reports, and eaten a lot of bad hotel food.</p>
+                <p>The list is now down to two finalists. You have to choose one.</p>
+                <p>Both markets are real opportunities. Both carry real risks. Neither is obviously right or obviously wrong. What matters now is whether you understand what you're getting into — and whether Hartwell has what it takes to succeed in the market you choose.</p>
+                <p><strong>Make your choice. Then answer the 5 questions for that path.</strong></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Select Your Market</h2>
+            <button class="btn-choice" onclick="chooseAlpha('nigeria')">
+                <span class="choice-label">Choice A</span>
+                <span class="choice-title">🇳🇬 Nigeria</span>
+                <span class="choice-desc">Africa's largest economy. 220 million people. A growing upper-middle class with appetite for premium goods in Lagos and Abuja — alongside infrastructure gaps, naira volatility, and an opaque regulatory environment.</span>
+            </button>
+            <button class="btn-choice" onclick="chooseAlpha('china')">
+                <span class="choice-label">Choice B</span>
+                <span class="choice-title">🇨🇳 China</span>
+                <span class="choice-desc">The world's second-largest economy. 400+ million middle-class consumers. World-class logistics — but brutal domestic competition, IP risk, and a US-China trade relationship that has become a geopolitical fault line.</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 4: Alpha Questions
+══════════════════════════════════════════════════════ -->
+<div id="alpha-questions-screen" class="screen">
+    <div class="container">
+        <div class="progress-track">
+            <div class="pt-step active"></div>
+            <div class="pt-step"></div>
+            <div class="pt-step"></div>
+            <div class="pt-step"></div>
+        </div>
+
+        <div class="questions-header">
+            <div>
+                <div class="qh-label">Situation Alpha</div>
+                <div class="qh-value" id="alpha-qs-label">Market Entry Questions</div>
+            </div>
+            <div style="text-align:right;">
+                <div class="qh-label">Progress</div>
+                <div class="qh-value"><span id="alpha-answered">0</span> / 5</div>
+            </div>
+        </div>
+
+        <div id="alpha-questions-container"></div>
+
+        <div class="submit-area">
+            <p>Answer all 5 questions to continue to Situation Beta.</p>
+            <button class="btn" id="alpha-next-btn" onclick="showSituation('beta')" disabled>Proceed to Situation Beta →</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 5: Situation Beta
+══════════════════════════════════════════════════════ -->
+<div id="beta-screen" class="screen">
+    <div class="container">
+        <div class="progress-track">
+            <div class="pt-step done"></div>
+            <div class="pt-step active"></div>
+            <div class="pt-step"></div>
+            <div class="pt-step"></div>
+        </div>
+
+        <div class="card">
+            <div class="situation-badge">Situation Beta — The Strategic Decision</div>
+            <div class="situation-title">Three Years Later.</div>
+            <div class="prose">
+                <p>Hartwell's entry into your chosen market was harder than the PowerPoint made it look. The first year was expensive and humbling. The second year, things started to click — you found the right distribution partner, figured out local consumer expectations, and got the pricing model right. By year three, you're profitable. The brand has traction. You have a functioning local team, a working supply chain, and a real foothold. The Columbus office has stopped treating international as an experiment and started treating it as a business unit.</p>
+                <p>Now the board wants to know what comes next. You've proven Hartwell can operate internationally. The question is how to grow from here. Two serious options are on the table.</p>
+                <p><strong>Make your choice. Then answer the 5 questions for that path.</strong></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Select Your Strategy</h2>
+            <button class="btn-choice" onclick="chooseBeta('expand')">
+                <span class="choice-label">Choice A</span>
+                <span class="choice-title">📈 Expand the Existing Product Line</span>
+                <span class="choice-desc">Push the blenders and coffee makers into 12 additional cities, add more retail partners, scale what's already working. Lower risk, significant upside through density in a proven market.</span>
+            </button>
+            <button class="btn-choice" onclick="chooseBeta('diversify')">
+                <span class="choice-label">Choice B</span>
+                <span class="choice-title">🔄 Diversify the Product Line</span>
+                <span class="choice-desc">Use your market position to launch new product categories — rice cookers, woks, multi-cookers designed for local cuisine. Higher risk, but a test of whether Hartwell can become a locally embedded brand.</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 6: Beta Questions
+══════════════════════════════════════════════════════ -->
+<div id="beta-questions-screen" class="screen">
+    <div class="container">
+        <div class="progress-track">
+            <div class="pt-step done"></div>
+            <div class="pt-step active"></div>
+            <div class="pt-step"></div>
+            <div class="pt-step"></div>
+        </div>
+
+        <div class="questions-header">
+            <div>
+                <div class="qh-label">Situation Beta</div>
+                <div class="qh-value" id="beta-qs-label">Strategy Questions</div>
+            </div>
+            <div style="text-align:right;">
+                <div class="qh-label">Progress</div>
+                <div class="qh-value"><span id="beta-answered">0</span> / 5</div>
+            </div>
+        </div>
+
+        <div id="beta-questions-container"></div>
+
+        <div class="submit-area">
+            <p>Answer all 5 questions to continue to Situation Gamma.</p>
+            <button class="btn" id="beta-next-btn" onclick="showSituation('gamma')" disabled>Proceed to Situation Gamma →</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 7: Situation Gamma
+══════════════════════════════════════════════════════ -->
+<div id="gamma-screen" class="screen">
+    <div class="container">
+        <div class="progress-track">
+            <div class="pt-step done"></div>
+            <div class="pt-step done"></div>
+            <div class="pt-step active"></div>
+            <div class="pt-step"></div>
+        </div>
+
+        <div class="card">
+            <div class="situation-badge">Situation Gamma — The Country Manager's Dilemma</div>
+            <div class="situation-title">Your Desk Is a Disaster.</div>
+            <div class="prose">
+                <p>You've made your strategic call. The expansion plan is approved and funded. The Columbus leadership team is behind it. On paper, things are moving.</p>
+                <p>In practice, your desk is a disaster.</p>
+                <p>Running an international operation at this stage means a constant triage of problems that don't fit neatly into any org chart. Legal has a list. HR has a list. Finance has a list. You can't do everything at once, and every week you delay costs something — money, trust, or risk exposure. Your Chief of Staff has sorted your most urgent issues into two buckets. You have to pick one to tackle first, and tackle it properly, while the other waits.</p>
+                <p><strong>Make your choice. Then answer the 5 questions for that path.</strong></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Select Your Priority</h2>
+            <button class="btn-choice" onclick="chooseGamma('hr')">
+                <span class="choice-label">Choice A</span>
+                <span class="choice-title">👥 Tackle HR Issues</span>
+                <span class="choice-desc">Three regional sales managers lost in four months. Exit interviews blame expat management style: micromanaged, undervalued, passed over. Two formal complaints filed. This is becoming operationally disruptive.</span>
+            </button>
+            <button class="btn-choice" onclick="chooseGamma('legal')">
+                <span class="choice-label">Choice B</span>
+                <span class="choice-title">⚖️ Tackle Legal Issues</span>
+                <span class="choice-desc">Three simultaneous exposures: a competitor may have copied your blender design, a customs audit has opened on 18 months of import documentation, and your distribution partner made a cash payment to a government official. Your General Counsel has three words: Foreign Corrupt Practices Act.</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 8: Gamma Questions
+══════════════════════════════════════════════════════ -->
+<div id="gamma-questions-screen" class="screen">
+    <div class="container">
+        <div class="progress-track">
+            <div class="pt-step done"></div>
+            <div class="pt-step done"></div>
+            <div class="pt-step active"></div>
+            <div class="pt-step"></div>
+        </div>
+
+        <div class="questions-header">
+            <div>
+                <div class="qh-label">Situation Gamma</div>
+                <div class="qh-value" id="gamma-qs-label">Operations Questions</div>
+            </div>
+            <div style="text-align:right;">
+                <div class="qh-label">Progress</div>
+                <div class="qh-value"><span id="gamma-answered">0</span> / 5</div>
+            </div>
+        </div>
+
+        <div id="gamma-questions-container"></div>
+
+        <div class="submit-area">
+            <p>Answer all 5 questions to continue to Situation Delta.</p>
+            <button class="btn" id="gamma-next-btn" onclick="showSituation('delta')" disabled>Proceed to Situation Delta →</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 9: Situation Delta
+══════════════════════════════════════════════════════ -->
+<div id="delta-screen" class="screen">
+    <div class="container">
+        <div class="progress-track">
+            <div class="pt-step done"></div>
+            <div class="pt-step done"></div>
+            <div class="pt-step done"></div>
+            <div class="pt-step active"></div>
+        </div>
+
+        <div class="card">
+            <div class="situation-badge">Situation Delta — The Final Challenge</div>
+            <div class="situation-title">The World Is Making Things Interesting.</div>
+            <div class="prose">
+                <p>You handled what you had to handle. Hartwell is now a recognized name in your market. You have real revenue, real staff, real infrastructure. The company's international operations are no longer a side project — they're a line item in the annual report.</p>
+                <p>And now the world is making things interesting.</p>
+                <p>Two sets of external pressures have arrived simultaneously, and both are serious enough that the board has asked you to present a response strategy at the next quarterly meeting. External forces don't care about your internal roadmap. You have to respond.</p>
+                <p><strong>Make your choice about which challenge to present on first. Then answer the 5 questions for that path.</strong></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Select Your Challenge</h2>
+            <button class="btn-choice" onclick="chooseDelta('environmental')">
+                <span class="choice-label">Choice A</span>
+                <span class="choice-title">🌿 Environmental Challenges</span>
+                <span class="choice-desc">An NGO report names your component supplier as responsible for illegal wastewater discharge, falsified emissions certifications, and safety violations — and names Hartwell as a downstream customer. Regulators are watching. Your largest retail partner has asked for a meeting.</span>
+            </button>
+            <button class="btn-choice" onclick="chooseDelta('political')">
+                <span class="choice-label">Choice B</span>
+                <span class="choice-title">🏛️ Political Issues</span>
+                <span class="choice-desc">A new nationalist government is pressuring foreign companies on local hiring, technology transfer, and local equity partners. Meanwhile, the US has expanded reporting requirements for American multinationals. You're managing two governments with competing demands.</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 10: Delta Questions
+══════════════════════════════════════════════════════ -->
+<div id="delta-questions-screen" class="screen">
+    <div class="container">
+        <div class="progress-track">
+            <div class="pt-step done"></div>
+            <div class="pt-step done"></div>
+            <div class="pt-step done"></div>
+            <div class="pt-step active"></div>
+        </div>
+
+        <div class="questions-header">
+            <div>
+                <div class="qh-label">Situation Delta</div>
+                <div class="qh-value" id="delta-qs-label">External Pressures Questions</div>
+            </div>
+            <div style="text-align:right;">
+                <div class="qh-label">Progress</div>
+                <div class="qh-value"><span id="delta-answered">0</span> / 5</div>
+            </div>
+        </div>
+
+        <div id="delta-questions-container"></div>
+
+        <div class="submit-area">
+            <p id="submit-warning" class="unanswered-warning" style="display:none;">Please answer all 5 questions before submitting.</p>
+            <p>When you have answered all 20 questions, submit your exam.</p>
+            <button class="btn" id="delta-submit-btn" onclick="submitExam()" disabled>Submit Exam →</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCREEN 11: Results
+══════════════════════════════════════════════════════ -->
+<div id="results-screen" class="screen">
+    <div class="container">
+
+        <div class="card" style="text-align:center;">
+            <div style="font-size:3rem;margin-bottom:0.5rem;">✓</div>
+            <h2>Submission Received</h2>
+            <p style="color:var(--text-muted);margin-top:0.5rem;">Your responses have been recorded. Your instructor will post grades to Canvas after the exam window closes.</p>
+        </div>
+
+        <div class="results-score">
+            <div class="score-number" id="result-score">—</div>
+            <div class="score-label">out of 20 correct &nbsp;|&nbsp; <span id="result-percent">—%</span> &nbsp;|&nbsp; <span id="result-pts">—</span> / 50 points</div>
+        </div>
+
+        <div class="card">
+            <h2>Your Path</h2>
+            <div class="path-display" id="result-path">——</div>
+            <div class="mono-info" style="margin-top:0.75rem;">
+                <div class="mi-label">Session ID</div>
+                <div class="mi-value" id="result-session-id">——</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Answer Review</h2>
+            <div id="answers-review"></div>
+        </div>
+
+    </div>
+</div>
+
+<div class="footer">
+    MANAGMNT 378: Introduction to Global Business &nbsp;|&nbsp; Isenberg School of Management, UMass Amherst<br>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;">THE HARTWELL SCENARIO — FINAL EXAMINATION</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════ -->
+<script>
+// ─── Question Bank ─────────────────────────────────────────────────────────
+
+const questions = {
+
+  alpha_nigeria: [
+    {
+      stem: "Hartwell's market entry analysis of Nigeria highlights capital controls imposed by the Central Bank, restrictions on foreign exchange access, and a history of limits on profit repatriation. In international business terms, this is primarily an example of:",
+      choices: {
+        A: "Ownership risk — the threat that the government may nationalize or expropriate Hartwell's local assets",
+        B: "Transfer risk — the risk that profits and capital cannot be freely moved out of the country",
+        C: "Operational risk — the risk that political instability will disrupt day-to-day business activities",
+        D: "Reputational risk — the risk that Hartwell's brand will be damaged by association with an unstable country"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Hartwell prices its blenders in US dollars and sells through a Nigerian distributor who pays in naira. Over the past two years, the naira has lost approximately 50% of its value against the dollar. What is the most direct operational consequence of this currency movement for Hartwell's business?",
+      choices: {
+        A: "Hartwell's products become cheaper for Nigerian consumers, increasing market demand and driving volume growth",
+        B: "Hartwell's dollar-denominated revenues decline because the naira depreciation makes it economically impossible for the distributor to maintain purchase volumes at dollar-denominated prices",
+        C: "Hartwell is fully insulated because pricing is set in USD and the distributor contractually absorbs all currency exposure",
+        D: "Hartwell benefits because the weaker naira makes Nigerian production cheaper, reducing Hartwell's manufacturing costs"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Feedback from Hartwell's Nigerian distribution partner reveals that local employees feel uncomfortable raising concerns directly with senior expatriate managers, preferring to communicate through intermediaries or in informal one-on-one settings rather than in group meetings. This behavior pattern is most consistent with which Hofstede cultural dimension?",
+      choices: {
+        A: "High Individualism — Nigerian employees prefer to handle conflicts independently rather than airing them in a group",
+        B: "High Power Distance — employees accept hierarchical authority and are reluctant to challenge or question those in senior positions, especially in public settings",
+        C: "High Uncertainty Avoidance — employees avoid situations where the outcome of speaking up is unpredictable",
+        D: "High Masculinity — a competitive culture discourages showing vulnerability in front of peers"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Hartwell's legal team is reviewing the trade environment before finalizing its import and market strategy for Nigeria. Which of the following statements about Nigeria's trade and regulatory context is most accurate and most relevant to Hartwell's planning?",
+      choices: {
+        A: "Nigeria is a member of ECOWAS, which means goods produced in other West African member states can enter Nigeria with preferential tariff treatment, potentially exposing Hartwell to competition from ECOWAS-based manufacturers",
+        B: "Nigeria's WTO membership guarantees that import tariffs on consumer goods will not exceed 5%, protecting Hartwell from prohibitive duties",
+        C: "Nigeria's local content requirements apply exclusively to the oil and gas sector and have no implications for a consumer goods company like Hartwell",
+        D: "ECOWAS membership means Hartwell can manufacture in any West African country and sell into Nigeria completely duty-free, with no rules-of-origin requirements"
+      },
+      correct: "A"
+    },
+    {
+      stem: "Given the characteristics of the Nigerian market as described — significant currency and political risk, infrastructure gaps outside major cities, an opaque regulatory environment, and the importance of local knowledge and relationships — which entry mode is most appropriate for Hartwell's initial entry, and why?",
+      choices: {
+        A: "Wholly Owned Subsidiary (WOS) — provides Hartwell maximum control over operations, brand standards, and profits without sharing revenue with a partner",
+        B: "Joint Venture with a Nigerian partner — combines Hartwell's products and brand with a partner's local knowledge, regulatory relationships, and distribution network",
+        C: "Export via a local distributor — minimizes capital at risk, leverages existing local expertise, and allows Hartwell to learn the market with limited downside before committing deeper resources",
+        D: "Licensing to a local manufacturer — allows Hartwell to earn royalty income without operational exposure in a high-risk market"
+      },
+      correct: "C"
+    }
+  ],
+
+  alpha_china: [
+    {
+      stem: "Hartwell's competitive advantage is built on proprietary motor design and engineering technology. Before entering China, Hartwell's General Counsel identifies IP protection as a top-tier risk. Which of the following best describes the IP protection challenge in China for a company like Hartwell?",
+      choices: {
+        A: "China does not have a functioning patent system, so foreign companies cannot register intellectual property and are fully exposed to unauthorized copying",
+        B: "China's IP laws have improved significantly in recent years, but enforcement remains inconsistent, and Hartwell's designs could be copied before a legal dispute is resolved — particularly if the competitor is a well-connected domestic firm",
+        C: "Hartwell's products are automatically protected in China by international patent law once they are commercially sold there, without requiring separate in-country registration",
+        D: "The primary IP risk in China is trademark squatting — registering foreign brand names — rather than product copying, so Hartwell's engineering designs face limited exposure"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Hartwell's legal counsel notes that China's consumer appliance sector does not formally require a Joint Venture — Hartwell could legally enter as a Wholly Foreign-Owned Enterprise (WFOE). The counsel nonetheless strongly recommends proactive investment in government relations at the local and provincial levels. What is the most compelling reason for this advice?",
+      choices: {
+        A: "Chinese law requires all foreign companies, including WFOEs, to appoint a government-approved director to their local board of directors",
+        B: "Regulatory approvals, business license renewals, enforcement discretion, and local policy implementation in China are significantly influenced by relationships with relevant government officials — making government relations a practical operational necessity, not just a courtesy",
+        C: "Without formal government relations, Hartwell would be legally ineligible to sell through Chinese e-commerce platforms, where the majority of premium appliance sales occur",
+        D: "A WFOE structure in China requires annual government review, and companies without established relationships routinely fail these reviews"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Hartwell's China country manager is negotiating a distribution agreement with a regional partner in Chengdu. After three meetings, the partner has not raised price or contract terms — instead inviting the country manager to dinners, a golf outing, and a factory tour. The country manager is frustrated. What cultural concept best explains the partner's behavior?",
+      choices: {
+        A: "The partner is exhibiting high long-term orientation and guanxi-building behavior — in Chinese business culture, investing in personal trust and relationship quality before formalizing terms is not a delay; it is the negotiation",
+        B: "The partner has high uncertainty avoidance and is stalling because Chinese business culture is deeply risk-averse about formal commitments with foreign companies",
+        C: "The partner is operating from high individualism — conducting independent due diligence and will make a unilateral decision without involving the country manager in his internal process",
+        D: "The partner is signaling low power distance — he wants to establish peer equality before negotiating, reflecting a preference for flat, non-hierarchical business relationships"
+      },
+      correct: "A"
+    },
+    {
+      stem: "New US tariffs on foreign-made goods have given Hartwell breathing room domestically. Hartwell is now considering whether a manufacturing presence in China could help it sidestep tariff exposure on imported components. What is the most significant strategic risk of this plan in the current US-China trade environment?",
+      choices: {
+        A: "Manufacturing in China would make Hartwell's products eligible for Chinese export subsidies, which would violate WTO rules and expose Hartwell to trade sanctions",
+        B: "Establishing manufacturing or a JV presence in China could create technology transfer pressure — formal or informal requirements that Hartwell share proprietary designs and engineering with Chinese partners or government entities",
+        C: "China's manufacturing sector is operating at full capacity, meaning Hartwell would face multi-year delays securing factory space and qualified production workers",
+        D: "US tariffs apply to all revenue generated by US-headquartered companies globally, regardless of where goods are manufactured, so relocating production to China would provide no tariff benefit"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Hartwell is choosing between three entry modes for China: (1) a Wholly Foreign-Owned Enterprise (WFOE), (2) a 50/50 Joint Venture with a Chinese appliance distributor, and (3) a licensing agreement with a Chinese manufacturer. Given Hartwell's priority of protecting its proprietary technology and maintaining brand quality standards, which mode is most consistent with those goals?",
+      choices: {
+        A: "Licensing — it generates royalty income with minimal capital commitment, and quality can be controlled through the licensing contract terms",
+        B: "WFOE — it gives Hartwell full operational control, IP protection, and brand quality oversight, but requires greater capital investment and management capacity to establish and run",
+        C: "50/50 Joint Venture — it divides governance equally between Hartwell and a local partner, providing the best balance of local knowledge and IP protection",
+        D: "WFOE — it eliminates all interaction with Chinese regulatory authorities, allowing Hartwell to operate in China the same way it operates in the United States"
+      },
+      correct: "B"
+    }
+  ],
+
+  beta_expand: [
+    {
+      stem: "After three years, Hartwell has established brand recognition, a working distribution network, and profitability in its international market. The board approves a plan to push the existing blender and coffee maker lineup into 12 additional cities and expand the number of retail partners in existing cities. In the Ansoff Matrix, this growth strategy is best described as:",
+      choices: {
+        A: "Market Development — selling existing products to new customer segments the company has not previously served",
+        B: "Product Development — introducing new products to the existing customer base in established markets",
+        C: "Market Penetration — selling existing products in existing markets with greater intensity, coverage, and resource investment",
+        D: "Diversification — expanding into new markets with new products simultaneously"
+      },
+      correct: "C"
+    },
+    {
+      stem: "Hartwell's CEO argues that the company's core competitive asset — premium engineering quality — is universally valued. She proposes a fully standardized global product lineup manufactured at a single production hub, distributed worldwide with consistent pricing and brand positioning. In the Bartlett & Ghoshal framework, this strategic posture is best described as:",
+      choices: {
+        A: "Multidomestic — adapting products and strategy to local preferences in each market to maximize local relevance",
+        B: "Transnational — balancing global standardization with selective local adaptation to capture both scale and responsiveness",
+        C: "Global — treating the world as a single integrated market, pursuing cost and brand advantages through standardization and scale",
+        D: "International — exporting home-country products and competencies to foreign markets while allowing subsidiaries some local adaptation"
+      },
+      correct: "C"
+    },
+    {
+      stem: "Hartwell's current supply chain relies on air freight from the US to a single in-country warehouse. The VP of Operations warns this model cannot scale cost-effectively to 12 additional cities. Which adjustment best addresses both cost and service level as Hartwell's footprint expands?",
+      choices: {
+        A: "Switch to ocean freight for bulk shipments and establish multiple regional distribution points in-country, positioning inventory closer to demand clusters and reducing per-unit logistics cost",
+        B: "Double air freight capacity by adding a second routing, while keeping the central warehouse as the single fulfillment node",
+        C: "Outsource all in-country logistics entirely to the distribution partner and remove Hartwell's operations team from the supply chain",
+        D: "Reduce the product catalog to the single highest-margin SKU to simplify logistics requirements before expanding geographically"
+      },
+      correct: "A"
+    },
+    {
+      stem: "As Hartwell expands to 12 new cities, the marketing team debates whether to maintain the established 'American premium' brand positioning or develop locally resonant messaging. What principle of international brand management most strongly supports maintaining the consistent positioning?",
+      choices: {
+        A: "Brands must always adapt messaging to local cultural references in each new market to maximize consumer relevance and sales conversion",
+        B: "A consistent premium brand identity creates a 'halo effect' — recognition and aspirational value earned in the major cities transfer credibly to new markets, where early adopters want the same product that established consumers in larger cities use",
+        C: "Premium positioning is only effective in Tier 1 cities; Hartwell must adapt to a mid-market positioning for secondary cities to remain price-competitive",
+        D: "The American origin of Hartwell's products is a liability in most international consumer markets and should be deemphasized in all marketing materials"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Hartwell has been operating as an exporter with a local distribution partner. Following the market penetration strategy's success, the CFO proposes reinvesting a portion of local profits to lease a local warehouse and hire a small in-country operations team. In FDI theory, this move is best understood as:",
+      choices: {
+        A: "Greenfield FDI — Hartwell is building new productive capacity in the foreign market from scratch rather than acquiring existing assets",
+        B: "Horizontal FDI — Hartwell is replicating its home-country operations abroad in order to serve the local market directly",
+        C: "FDI deepening — Hartwell is increasing its operational commitment and asset base in an existing market, moving from arm's-length export to a more embedded and controlled presence",
+        D: "Vertical FDI — Hartwell is backward-integrating into its supply chain by establishing local manufacturing capacity"
+      },
+      correct: "C"
+    }
+  ],
+
+  beta_diversify: [
+    {
+      stem: "Hartwell's current product line — premium blenders and espresso machines — was designed for the American 'prosumer' market. The diversification strategy calls for launching rice cookers, multi-cookers, and wok accessories adapted to local cooking practices. In global strategy terms, this decision represents a shift toward which strategic posture?",
+      choices: {
+        A: "Global strategy — standardizing a broader product portfolio globally to achieve greater economies of scale across all product categories",
+        B: "Multidomestic strategy — designing products specifically for local consumer needs, accepting that what succeeds in this market will differ from what succeeds in the US",
+        C: "Transnational strategy — maintaining shared engineering platforms across regions while adapting product features for local markets",
+        D: "International strategy — exporting the US product line without modification, relying on the Hartwell brand's premium reputation to generate demand regardless of product fit"
+      },
+      correct: "B"
+    },
+    {
+      stem: "In the Bartlett & Ghoshal framework, 'local responsiveness' is the degree to which a firm adapts its strategy to the specific requirements of individual national markets. Which factor in Hartwell's situation most strongly argues for a high local responsiveness approach in the product diversification decision?",
+      choices: {
+        A: "Hartwell's premium engineering reputation is a universal competitive advantage that transcends differences in local cooking culture",
+        B: "Local competitors who design products specifically for local cuisine have a built-in and sustained advantage over a foreign brand selling appliances designed for American kitchens — an advantage that brand prestige alone cannot overcome",
+        C: "Manufacturing products tailored to local markets creates cost disadvantages that will make Hartwell unprofitable against price-competitive local brands",
+        D: "Consumer preferences for kitchen appliances are converging globally due to social media influence, reducing the need for product adaptation in most markets"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Hartwell's board approves the diversification strategy but asks for a candid risk assessment. The CFO notes that launching new product categories in an international market is inherently more complex than expanding the existing line. Which statement best captures the compounding nature of the risk?",
+      choices: {
+        A: "New product categories are subject to higher import tariffs than product categories already cleared through customs, increasing landed cost",
+        B: "Hartwell faces simultaneous product development risk — the new products may not meet local performance or quality expectations — and brand extension risk — consumers who trust Hartwell for blenders may not automatically transfer that trust to rice cookers or woks",
+        C: "International supply chains for new product categories are structurally more expensive than for established product lines, making near-term profitability structurally unlikely",
+        D: "Local governments typically require separate regulatory certification for new product categories, a process that can delay market entry by two or more years"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Hartwell's product development team is designing a new rice cooker for the local market. A consumer research firm recommends testing three features: (1) a 'quick cook' mode (15 minutes), (2) a 'keep warm' function (up to 12 hours), and (3) a minimal industrial aesthetic consistent with Hartwell's US design. Which cultural product preference insight is most likely to emerge from the research?",
+      choices: {
+        A: "Consumers will most value the minimal design, because premium foreign brands are prized precisely for their distinctively foreign aesthetic",
+        B: "The 'keep warm' function is likely the highest-priority feature, because it aligns with the actual usage pattern — rice is typically cooked once and kept ready for consumption throughout the day in households where rice anchors every meal",
+        C: "The 'quick cook' mode will be the priority, because time efficiency is the single most valued attribute for appliance consumers in emerging markets",
+        D: "All three features will be valued equally, because premium appliance consumers are functionally homogeneous across cultures"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Hartwell has limited management bandwidth and capital. The diversification strategy requires investment in new product development, new manufacturing partnerships, new supply chain logistics, and new consumer marketing — all while the existing product line needs continued attention. Which framework is most useful for guiding Hartwell's resource allocation between these competing investment demands?",
+      choices: {
+        A: "The BCG Growth-Share Matrix — categorize the existing blender/coffee maker line as a 'cash cow' generating reliable profits, and allocate a portion of those profits to fund the new product categories as 'question marks' with uncertain but potentially high returns",
+        B: "Porter's Five Forces — analyze competitive intensity in each new product category to determine which faces the weakest competition and should receive the most resources",
+        C: "The Ansoff Matrix — recognize that diversification requires a different risk tolerance than penetration and use the matrix to set investment thresholds accordingly",
+        D: "Hofstede's cultural dimensions — predict which product categories will achieve the highest acceptance in the local culture before allocating product development resources"
+      },
+      correct: "A"
+    }
+  ],
+
+  gamma_hr: [
+    {
+      stem: "Hartwell has lost three regional sales managers in four months. Exit interviews consistently describe the same problems: local employees feel 'micromanaged,' 'undervalued,' and 'passed over for decisions about their own markets.' The expat leadership team from Columbus is surprised — they describe their management approach as 'hands-on and collaborative.' Which explanation best accounts for this disconnect?",
+      choices: {
+        A: "The local employees are underperforming and are using cultural complaints to deflect legitimate performance feedback from their managers",
+        B: "The expat managers' 'hands-on, collaborative' style reflects a low-power-distance, direct-communication management approach that reads as intrusive, disrespectful, and trust-denying in a higher-power-distance culture where role clarity and delegated authority are expected",
+        C: "Hartwell's compensation structure is below market and the cultural complaints are secondary to a straightforward pay problem that exit interviews are not capturing",
+        D: "The expats lack functional knowledge of the local market, and local employees are frustrated by being directed by managers who are less knowledgeable than the people they manage"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Hartwell's international operation is currently led entirely by managers recruited from Columbus headquarters and deployed internationally. Local hires fill sales, operations, and support roles but hold no senior management positions. This staffing approach is best characterized as:",
+      choices: {
+        A: "Geocentric — selecting the best qualified person for each role globally, regardless of nationality",
+        B: "Polycentric — staffing local operations with host-country nationals who understand the local market and culture",
+        C: "Ethnocentric — staffing international management roles primarily with home-country nationals from headquarters, reflecting a headquarters-knows-best assumption",
+        D: "Regiocentric — staffing regional management positions with managers drawn from within the same geographic region as the operation"
+      },
+      correct: "C"
+    },
+    {
+      stem: "Hartwell's Columbus HR team proposes implementing a US-style retention program built around individual performance bonuses — personal sales targets tied directly to quarterly cash payouts. A local HR consultant warns that this program may not achieve the desired motivational effect. What cultural principle most directly explains the consultant's concern?",
+      choices: {
+        A: "In many collectivist cultures, individual financial rewards can actually undermine motivation because singling out individuals for recognition separates them from the group — violating a cultural norm where collective achievement and group harmony are the primary sources of professional meaning",
+        B: "Pay-for-performance systems are prohibited by labor regulations in most emerging markets because they create compensation inequality that violates legal standards",
+        C: "Local employees are already earning above-market wages, so the marginal financial incentive will have little psychological impact regardless of program design",
+        D: "High uncertainty avoidance in the local culture means employees strongly prefer stable base salaries over variable compensation, making any bonus program ineffective"
+      },
+      correct: "A"
+    },
+    {
+      stem: "Hartwell's US country manager is known for direct, transparent communication: he gives candid feedback in team meetings, praises strong performers publicly, and addresses poor performance in the same group forum. After six months, he reports his team seems 'disengaged' — local managers rarely contribute ideas in meetings. Which Hofstede dimension best explains the team's behavioral shift?",
+      choices: {
+        A: "High power distance — public critique or correction from a senior leader in a group setting causes loss of face, which is deeply uncomfortable in high-power-distance and collectivist cultures, and permanently chills subordinates' willingness to speak up",
+        B: "High uncertainty avoidance — the unpredictable performance feedback system creates anxiety about outcomes, causing employees to withdraw from situations that might expose them to criticism",
+        C: "High masculinity — the competitive atmosphere generated by public comparison of performance favors the most assertive team members and discourages others",
+        D: "Low long-term orientation — the short-term performance focus of the feedback system signals to employees that Hartwell does not value their long-term professional development"
+      },
+      correct: "A"
+    },
+    {
+      stem: "Hartwell is preparing to send two additional managers from Columbus to support international operations. Research on what predicts expatriate success suggests that functional competence alone is an insufficient criterion for selection. Which factor is most strongly associated with expatriate effectiveness, according to the international management literature?",
+      choices: {
+        A: "Prior international travel — managers who have visited more countries adjust to new environments more quickly and face fewer integration challenges",
+        B: "Host-country language proficiency — fluency in the local language is the single strongest predictor of success because it eliminates the most common source of miscommunication",
+        C: "Cultural intelligence (CQ) — the capability to observe cultural cues, adjust behavioral assumptions, and adapt management style across different cultural contexts predicts performance better than any other single factor",
+        D: "Seniority within the home organization — senior managers have the positional authority to implement decisions regardless of cultural friction"
+      },
+      correct: "C"
+    }
+  ],
+
+  gamma_legal: [
+    {
+      stem: "A local competitor has launched a blender with a form factor, feature set, and design language that closely resembles Hartwell's flagship model. Hartwell's legal team wants to pursue an infringement claim. What is the single most important preliminary question Hartwell's lawyers must answer before filing?",
+      choices: {
+        A: "Whether the competitor's product has been reviewed and certified by a government standards agency, which would give it automatic immunity from IP infringement claims",
+        B: "Whether Hartwell's product designs, engineering features, and trade dress are registered as intellectual property in this specific jurisdiction — not merely in the United States",
+        C: "Whether the competitor uses the same distribution partner as Hartwell, which would create joint liability between the distributor and the competitor",
+        D: "Whether Hartwell's products are manufactured locally, since most countries only extend IP protection to domestically produced goods"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Hartwell's local distribution partner made a cash payment to a government official to expedite a stalled permit. The partner dismisses Hartwell's concern, calling it 'standard local practice.' Hartwell's General Counsel responds that this creates serious legal exposure for Hartwell specifically under the Foreign Corrupt Practices Act (FCPA). Which statement best explains why the FCPA creates a problem for Hartwell — not only for the partner?",
+      choices: {
+        A: "The FCPA creates liability only for the individual who physically made the payment, not for companies that indirectly benefit from the payment",
+        B: "The FCPA can impose liability on US companies for corrupt payments made by third parties — distributors, agents, or JV partners — acting on behalf of the US company, when the company knew or should have known the payment was being made",
+        C: "The FCPA applies only to corrupt payments made to national government ministers, not to low-level municipal officials who process routine administrative permits",
+        D: "The FCPA applies only to US publicly traded companies reporting to the SEC, and Hartwell as a private company is not subject to its provisions"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Customs authorities have opened an 18-month audit of Hartwell's import documentation, citing inconsistencies in how products were classified under the tariff schedule. Hartwell's logistics coordinator acknowledges that products were classified under different tariff codes across shipments, sometimes to take advantage of lower-duty categories. What is the most significant legal and operational risk this creates?",
+      choices: {
+        A: "Hartwell may face reclassification of all audited shipments to the highest applicable tariff code, with back-duties assessed on the full audit period, plus civil penalties — potentially a multiple of the underpaid duties — and possible suspension of import privileges",
+        B: "Hartwell will be required to transition from ocean freight to air freight for all future shipments as a condition of maintaining import authorization",
+        C: "Hartwell's distributor, as the local importer of record, bears all legal liability for customs classification, shielding Hartwell from the audit's consequences",
+        D: "Customs misclassification is treated as a minor administrative matter that is routinely resolved through payment of the classification difference with no additional penalties"
+      },
+      correct: "A"
+    },
+    {
+      stem: "The customs audit and the FCPA-adjacent permit payment are occurring simultaneously, creating significant regulatory exposure. Hartwell's General Counsel recommends engaging a local regulatory compliance advisor. What is the strongest rationale for this investment?",
+      choices: {
+        A: "Local compliance advisors have formal authority to override enforcement decisions by government agencies and can provide a contractual guarantee against future regulatory scrutiny",
+        B: "A qualified local regulatory advisor understands the procedural norms, agency relationships, and informal communication expectations of the regulatory environment — and helps Hartwell navigate it effectively and legally, reducing the risk of inadvertent violations",
+        C: "The primary value of a local advisor is that all regulatory liability transfers to the advisor once retained, protecting Hartwell from further enforcement exposure",
+        D: "Local advisors have exclusive authority to negotiate directly with customs and regulatory agencies on behalf of foreign companies, making their engagement legally required before any audit response"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Following the FCPA incident, Hartwell's General Counsel recommends updating all distribution agreements to include explicit anti-corruption clauses — requiring the distributor to comply with the FCPA and comparable local anti-bribery laws, and granting Hartwell the right to audit and terminate if violations occur. Beyond the legal documentation itself, what does this action accomplish?",
+      choices: {
+        A: "It eliminates Hartwell's FCPA liability for any future distributor misconduct, because the contract formally establishes that the distributor is solely responsible for its own compliance",
+        B: "It communicates Hartwell's compliance standards to the distributor in unambiguous terms, creates a contractual basis for terminating the relationship if violations occur, and demonstrates to regulators that Hartwell has a good-faith compliance program in place",
+        C: "It satisfies the FCPA's safe harbor provision, which exempts companies from prosecution when they have documented anti-corruption policies in written contracts with all third parties",
+        D: "It transfers primary regulatory oversight responsibility to the local distributor, allowing Hartwell to reduce its own compliance investment and oversight activity"
+      },
+      correct: "B"
+    }
+  ],
+
+  delta_environmental: [
+    {
+      stem: "A prominent international NGO has published a report identifying Hartwell's motor housing supplier as responsible for illegal wastewater discharge, falsified emissions certifications, and ongoing safety violations — and naming Hartwell as a downstream customer. According to stakeholder theory, which approach to the response process is most appropriate?",
+      choices: {
+        A: "Prioritize shareholders — the stock price impact of negative press is the most material concern, and protecting shareholder value is the firm's primary legal obligation",
+        B: "Prioritize the NGO — the NGO controls the public narrative and must be satisfied before Hartwell can address any other stakeholder group effectively",
+        C: "Address multiple stakeholder groups simultaneously — the retail partner requesting a meeting, local regulators monitoring Hartwell's response, consumers who may change purchasing behavior, and the broader public whose trust underlies the premium brand",
+        D: "Focus exclusively on the supplier — the violations are the supplier's fault, and Hartwell's first obligation is to establish legal distance from the supplier's conduct before engaging any other stakeholder"
+      },
+      correct: "C"
+    },
+    {
+      stem: "Hartwell's Chief Procurement Officer is surprised by the supplier report. 'We buy components, not compliance records,' he says. 'We can't be responsible for everything that happens at every supplier.' Why is this position legally and ethically untenable in the current global business environment?",
+      choices: {
+        A: "It is legally sound but ethically questionable — Hartwell has no formal legal obligation in most markets to monitor supplier environmental compliance, but the position reflects poor values",
+        B: "It is both legally and ethically problematic — supply chain due diligence obligations are expanding globally through regulation and reporting standards, and consumers, retailers, and investors hold brands accountable for supply chain conduct regardless of formal legal ownership",
+        C: "It is defensible because Hartwell cannot control what independent legal entities do, and the NGO report incorrectly attributes responsibility to a company that did not commit the violations",
+        D: "It is problematic only in markets with aggressive NGO sectors — in markets with less civil society pressure, the CPO's position is a reasonable standard of care"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Local regulators have publicly signaled they are monitoring how foreign brands respond to the supplier scandal, noting that environmental and manufacturing standards are tightening. Hartwell's operations team points out that Hartwell is an importer and does not manufacture locally. What is the most appropriate compliance posture for Hartwell to take?",
+      choices: {
+        A: "Hartwell has no compliance obligation because it is an importer rather than a manufacturer — environmental regulations apply only to entities with local production facilities",
+        B: "Hartwell should immediately suspend all imports until it has completed a global audit of every supplier in its supply chain, regardless of the commercial disruption",
+        C: "Hartwell should proactively audit its in-country supply chain relationships, replace or remediate the implicated supplier, and communicate its compliance steps to regulators — demonstrating that it takes its responsibilities as a market participant seriously",
+        D: "Hartwell should direct its local distributor to handle all regulatory communications, since the distributor is the entity with a legal presence and can more credibly represent the company's interests"
+      },
+      correct: "C"
+    },
+    {
+      stem: "Hartwell's PR team drafts a public statement: 'Hartwell takes environmental responsibility seriously and is actively reviewing the matter.' The General Counsel advises this statement is insufficient and may worsen the reputational situation. What communications approach most effectively manages reputational risk in the immediate aftermath of the NGO report?",
+      choices: {
+        A: "Issue a detailed public denial of any connection to the supplier's violations — to ensure Hartwell is not legally associated with conduct it did not commit",
+        B: "Decline to comment publicly until the internal investigation is complete — to avoid making statements that could be used against Hartwell in potential regulatory or legal proceedings",
+        C: "Release a specific, time-bound public commitment — acknowledge the supplier relationship, confirm an immediate audit is underway, name the steps being taken, and provide a deadline for a follow-up update — demonstrating accountability and controlling the narrative before others do it for Hartwell",
+        D: "Approach the NGO privately and offer a financial contribution to its environmental programs in exchange for removing Hartwell's name from the report"
+      },
+      correct: "C"
+    },
+    {
+      stem: "After the supplier crisis, Hartwell's board debates whether to invest in a comprehensive sustainability program — including regular third-party environmental audits of all suppliers, a public 'clean supply chain' commitment, and ESG reporting. The CFO characterizes it as a cost center with no identifiable return. Which argument most effectively makes the case for the investment?",
+      choices: {
+        A: "Environmental compliance programs are required by international law for all companies operating across multiple jurisdictions, making the investment non-optional",
+        B: "A credible sustainability commitment directly reinforces Hartwell's premium brand positioning — consumers who pay a premium for quality increasingly expect that premium to extend to ethical and environmental sourcing — and simultaneously reduces the risk of future supply chain crises that could be far more expensive than the program itself",
+        C: "Sustainability programs generate cost savings through improved manufacturing efficiency and waste reduction that directly offset the program investment within two to three years",
+        D: "The CFO is correct in the short term — sustainability programs generate no measurable return on investment and are primarily a reputational insurance expense"
+      },
+      correct: "B"
+    }
+  ],
+
+  delta_political: [
+    {
+      stem: "The new government has publicly committed to economic nationalism — local hiring requirements, technology transfer obligations, and potential local equity partner requirements for foreign companies. Hartwell's leadership needs to assess this political risk systematically. Which approach is most appropriate?",
+      choices: {
+        A: "SWOT Analysis — identify Hartwell's internal strengths that can be used to resist government pressure and internal weaknesses that make it more vulnerable",
+        B: "A political risk framework that distinguishes macro (country-level political environment) from micro (sector- and firm-level) risk, and that assesses probability, severity, and manageability for each specific policy threat Hartwell faces",
+        C: "Porter's Five Forces — analyze competitive dynamics in the consumer appliance sector to determine whether the government pressure will affect all foreign competitors equally",
+        D: "Scenario planning alone — map best-case and worst-case outcomes and prepare contingency plans for each, without first assessing the probability of each scenario"
+      },
+      correct: "B"
+    },
+    {
+      stem: "The new government has informally signaled that it expects Hartwell to increase local hiring at the management level. Hartwell's board is divided: one faction wants to wait for formal regulatory requirements before acting; another recommends proactive compliance. What is the strongest strategic argument for moving proactively?",
+      choices: {
+        A: "Proactive compliance is legally required whenever a government signals a preference, even informally, in order to maintain a valid operating license",
+        B: "Proactive compliance signals goodwill, builds political capital with the new administration, and allows Hartwell to shape how the requirement is implemented — timelines, role definitions, transition plans — rather than receiving a top-down mandate with no flexibility",
+        C: "Local management hires always outperform expatriate managers on operational metrics, so compliance improves performance independent of the political incentive",
+        D: "Proactive compliance on local content will permanently exempt Hartwell from all future regulatory requirements in the economic nationalist policy agenda"
+      },
+      correct: "B"
+    },
+    {
+      stem: "The government is informally pressuring foreign companies to share product technology with local partners as part of its economic nationalist program. Hartwell's competitive advantage is its proprietary motor design. How should Hartwell respond to the technology transfer pressure while protecting its core asset?",
+      choices: {
+        A: "Comply fully and immediately with all technology transfer requests to maintain the government relationship and avoid any operational disruption",
+        B: "Refuse all technology transfer requests categorically and prepare to exit the market if the government escalates pressure",
+        C: "Carefully distinguish between operational knowledge that can be shared without compromising competitive advantage — manufacturing processes, quality management practices, supplier relationships — and core proprietary technology that must be protected, sharing the former while defending the latter through legal registration and contractual arrangements",
+        D: "License the core motor technology to a local partner in exchange for a significant equity stake, making the partner a co-owner and therefore a commercial ally rather than a competitor"
+      },
+      correct: "C"
+    },
+    {
+      stem: "The US government has expanded reporting requirements for American companies operating in Hartwell's market — new mandatory disclosures covering ownership structures, technology transfer arrangements, and political contributions made by the local operation. Hartwell's General Counsel estimates full compliance will require significant internal resources. What is the correct organizational response?",
+      choices: {
+        A: "Evaluate whether the required disclosures would reveal competitive strategy to foreign governments or competitors, and seek an agency exemption before complying if they would",
+        B: "Comply fully and promptly — US companies operating internationally remain subject to US law regardless of operational cost, and noncompliance with US government reporting requirements creates legal, regulatory, and reputational exposure that exceeds the compliance cost",
+        C: "Route operations through the local subsidiary to reduce the portion of Hartwell's business subject to US reporting requirements, thereby minimizing disclosure obligations",
+        D: "Engage a Washington lobbying firm to negotiate a compliance delay until the political situation in the host country stabilizes, deferring the resource burden"
+      },
+      correct: "B"
+    },
+    {
+      stem: "Hartwell now faces competing demands from two governments. The host government is pressuring Hartwell to bring in a local equity partner — and has named a state-linked company as a suitable candidate. The US government's expanded export control rules create legal complications for any partnership with state-linked entities. What principle best guides Hartwell's response?",
+      choices: {
+        A: "Host-country requirements take practical precedence because Hartwell cannot operate without local government approval, and operational continuity must be preserved",
+        B: "US law takes precedence in all situations where conflict exists, and Hartwell should exit the market immediately if host-country demands cannot be reconciled with US law",
+        C: "Hartwell should identify the specific legal requirements from each government, map where genuine compliance conflicts exist versus where creative structuring might satisfy both, and obtain qualified legal counsel in both jurisdictions — escalating to the board only if a genuine irreconcilable conflict emerges",
+        D: "Dual sovereignty conflicts are the responsibility of both governments to resolve through bilateral diplomacy, and Hartwell should suspend all decisions and wait for a government-to-government framework before proceeding"
+      },
+      correct: "C"
+    }
+  ]
+
+};
+
+// ─── State ─────────────────────────────────────────────────────────────────
+
+const state = {
+  studentId: '',
+  sessionId: '',
+  alphaChoice: '',     // 'nigeria' | 'china'
+  betaChoice: '',      // 'expand' | 'diversify'
+  gammaChoice: '',     // 'hr' | 'legal'
+  deltaChoice: '',     // 'environmental' | 'political'
+  answers: {           // question-key → letter chosen
+    alpha: {},
+    beta: {},
+    gamma: {},
+    delta: {}
+  },
+  submitted: false
+};
+
+// ─── Utility ────────────────────────────────────────────────────────────────
+
+function generateSessionId() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let id = '';
+  for (let i = 0; i < 6; i++) id += chars[Math.floor(Math.random() * chars.length)];
+  return id;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ─── Screen 1: Auth ──────────────────────────────────────────────────────
+
+function authenticate() {
+  const sid = document.getElementById('student-id').value.trim();
+  const code = document.getElementById('access-code').value.trim().toUpperCase();
+  const errEl = document.getElementById('auth-error');
+
+  if (!sid || !/^\d{5,10}$/.test(sid)) {
+    errEl.textContent = 'Please enter a valid Student ID (5–10 digits).';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (code !== 'HARTWELL2026') {
+    errEl.textContent = 'Invalid access code. Check your course materials and try again.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  state.studentId = sid;
+  state.sessionId = generateSessionId();
+
+  document.getElementById('bg-session-id').textContent = state.sessionId;
+
+  // Track attempt
+  const key = 'hartwell_attempts_' + sid;
+  const attempts = parseInt(localStorage.getItem(key) || '0') + 1;
+  localStorage.setItem(key, attempts.toString());
+
+  showScreen('background-screen');
+}
+
+document.getElementById('access-code').addEventListener('keypress', e => {
+  if (e.key === 'Enter') authenticate();
+});
+
+document.getElementById('student-id').addEventListener('keypress', e => {
+  if (e.key === 'Enter') authenticate();
+});
+
+// ─── Situation routing ────────────────────────────────────────────────────
+
+function showSituation(sit) {
+  // Validate questions answered before advancing
+  if (sit === 'beta') {
+    const answered = Object.keys(state.answers.alpha).length;
+    if (answered < 5) return;
+    updateProgressTrack(2);
+    showScreen('beta-screen');
+  } else if (sit === 'gamma') {
+    const answered = Object.keys(state.answers.beta).length;
+    if (answered < 5) return;
+    updateProgressTrack(3);
+    showScreen('gamma-screen');
+  } else if (sit === 'delta') {
+    const answered = Object.keys(state.answers.gamma).length;
+    if (answered < 5) return;
+    updateProgressTrack(4);
+    showScreen('delta-screen');
+  } else if (sit === 'alpha') {
+    showScreen('alpha-screen');
+  }
+}
+
+function updateProgressTrack(activeStep) {
+  // Called when moving forward — cosmetic only (tracks are hardcoded per screen)
+}
+
+// ─── Alpha ────────────────────────────────────────────────────────────────
+
+function chooseAlpha(choice) {
+  state.alphaChoice = choice;
+  const label = choice === 'nigeria' ? '🇳🇬 Nigeria — Market Entry Questions' : '🇨🇳 China — Market Entry Questions';
+  document.getElementById('alpha-qs-label').textContent = label;
+  renderQuestions('alpha', 'alpha_' + choice, 'alpha-questions-container', 'alpha', 'alpha-answered', 'alpha-next-btn');
+  showScreen('alpha-questions-screen');
+}
+
+// ─── Beta ─────────────────────────────────────────────────────────────────
+
+function chooseBeta(choice) {
+  state.betaChoice = choice;
+  const label = choice === 'expand' ? '📈 Market Expansion Questions' : '🔄 Diversification Questions';
+  document.getElementById('beta-qs-label').textContent = label;
+  renderQuestions('beta', 'beta_' + choice, 'beta-questions-container', 'beta', 'beta-answered', 'beta-next-btn');
+  showScreen('beta-questions-screen');
+}
+
+// ─── Gamma ───────────────────────────────────────────────────────────────
+
+function chooseGamma(choice) {
+  state.gammaChoice = choice;
+  const label = choice === 'hr' ? '👥 HR Management Questions' : '⚖️ Legal & Compliance Questions';
+  document.getElementById('gamma-qs-label').textContent = label;
+  renderQuestions('gamma', 'gamma_' + choice, 'gamma-questions-container', 'gamma', 'gamma-answered', 'gamma-next-btn');
+  showScreen('gamma-questions-screen');
+}
+
+// ─── Delta ───────────────────────────────────────────────────────────────
+
+function chooseDelta(choice) {
+  state.deltaChoice = choice;
+  const label = choice === 'environmental' ? '🌿 Environmental Challenge Questions' : '🏛️ Political Risk Questions';
+  document.getElementById('delta-qs-label').textContent = label;
+  renderQuestions('delta', 'delta_' + choice, 'delta-questions-container', 'delta', 'delta-answered', 'delta-submit-btn');
+  showScreen('delta-questions-screen');
+}
+
+// ─── Question renderer ────────────────────────────────────────────────────
+
+function renderQuestions(section, questionKey, containerId, answerKey, counterId, btnId) {
+  const qs = questions[questionKey];
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  state.answers[section] = {};
+
+  qs.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'question-block';
+    div.id = `q-${section}-${i}`;
+
+    const choicesHtml = Object.entries(q.choices).map(([letter, text]) =>
+      `<button class="choice-btn" onclick="selectAnswer('${section}','${questionKey}',${i},'${letter}','${counterId}','${btnId}')" id="choice-${section}-${i}-${letter}">
+         <span class="choice-letter">${letter}</span>
+         <span>${text}</span>
+       </button>`
+    ).join('');
+
+    div.innerHTML = `
+      <div class="q-meta">
+        <div class="q-num">QUESTION ${i + 1} OF 5</div>
+        <div class="q-locked" id="lock-${section}-${i}">LOCKED</div>
+      </div>
+      <div class="q-stem">${q.stem}</div>
+      <div class="choices">${choicesHtml}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function selectAnswer(section, questionKey, qIndex, letter, counterId, btnId) {
+  // Already answered?
+  if (state.answers[section][qIndex] !== undefined) return;
+
+  state.answers[section][qIndex] = letter;
+
+  // Lock all choices for this question
+  const letters = ['A', 'B', 'C', 'D'];
+  letters.forEach(l => {
+    const btn = document.getElementById(`choice-${section}-${qIndex}-${l}`);
+    if (btn) {
+      btn.classList.add('locked');
+      if (l === letter) btn.classList.add('selected');
+    }
+  });
+
+  // Show locked badge
+  const lockEl = document.getElementById(`lock-${section}-${qIndex}`);
+  if (lockEl) lockEl.style.display = 'block';
+
+  // Dim the question block
+  const qBlock = document.getElementById(`q-${section}-${qIndex}`);
+  if (qBlock) qBlock.classList.add('answered');
+
+  // Update counter
+  const answered = Object.keys(state.answers[section]).length;
+  document.getElementById(counterId).textContent = answered;
+
+  // Enable next/submit button if all 5 answered
+  if (answered >= 5) {
+    const btn = document.getElementById(btnId);
+    if (btn) btn.disabled = false;
+  }
+}
+
+// ─── Submit ───────────────────────────────────────────────────────────────
+
+function submitExam() {
+  const deltaAnswered = Object.keys(state.answers.delta).length;
+  if (deltaAnswered < 5) {
+    document.getElementById('submit-warning').style.display = 'block';
+    return;
+  }
+
+  // Tally score
+  let score = 0;
+  const allAnswers = []; // [{section, qKey, qIndex, chosen, correct, isCorrect, stem}]
+
+  const sections = [
+    { key: 'alpha', qSet: 'alpha_' + state.alphaChoice },
+    { key: 'beta',  qSet: 'beta_'  + state.betaChoice  },
+    { key: 'gamma', qSet: 'gamma_' + state.gammaChoice },
+    { key: 'delta', qSet: 'delta_' + state.deltaChoice }
+  ];
+
+  sections.forEach(sec => {
+    const qs = questions[sec.qSet];
+    for (let i = 0; i < 5; i++) {
+      const chosen = state.answers[sec.key][i];
+      const correct = qs[i].correct;
+      const isCorrect = chosen === correct;
+      if (isCorrect) score++;
+      allAnswers.push({
+        section: sec.key.toUpperCase(),
+        qSet: sec.qSet,
+        qIndex: i,
+        chosen: chosen,
+        correct: correct,
+        isCorrect: isCorrect,
+        stem: qs[i].stem
+      });
+    }
+  });
+
+  const pct = Math.round((score / 20) * 100);
+  const pts = (score * 2.5).toFixed(1);
+
+  const pathLabel = buildPathLabel();
+
+  // Update results screen
+  document.getElementById('result-score').textContent = score;
+  document.getElementById('result-percent').textContent = pct + '%';
+  document.getElementById('result-pts').textContent = pts;
+  document.getElementById('result-path').textContent = pathLabel;
+  document.getElementById('result-session-id').textContent = state.sessionId;
+
+  // Answer review
+  const reviewEl = document.getElementById('answers-review');
+  reviewEl.innerHTML = allAnswers.map((a, i) => `
+    <div class="answer-review-item ${a.isCorrect ? 'correct' : 'incorrect'}">
+      <div class="ari-status ${a.isCorrect ? 'correct' : 'incorrect'}">${a.isCorrect ? '✓' : '✗'} Q${i+1} — ${a.section} (${a.isCorrect ? 'Correct' : 'Incorrect'})</div>
+      <div class="ari-question">${a.stem.substring(0, 120)}${a.stem.length > 120 ? '…' : ''}</div>
+      <div class="ari-answer">Your answer: ${a.chosen || '—'}${!a.isCorrect ? ' &nbsp;·&nbsp; Correct: ' + a.correct : ''}</div>
+    </div>
+  `).join('');
+
+  // Build submission payload
+  const q1to20 = allAnswers.map((a, i) =>
+    `Q${i+1}:${a.chosen}(${a.isCorrect ? '✓' : '✗'})`
+  ).join(' | ');
+
+  const payload = {
+    studentId: state.studentId,
+    sessionId: state.sessionId,
+    path: pathLabel,
+    score: score,
+    percentage: pct + '%',
+    q1to20: q1to20,
+    timestamp: new Date().toISOString()
+  };
+
+  // Submit
+  submitToGoogleSheet(payload);
+
+  state.submitted = true;
+  showScreen('results-screen');
+}
+
+function buildPathLabel() {
+  const alphaLabel = state.alphaChoice === 'nigeria' ? 'Nigeria' : 'China';
+  const betaLabel  = state.betaChoice  === 'expand'  ? 'Expand' : 'Diversify';
+  const gammaLabel = state.gammaChoice === 'hr'      ? 'HR Issues' : 'Legal Issues';
+  const deltaLabel = state.deltaChoice === 'environmental' ? 'Environmental' : 'Political';
+  return `${alphaLabel} › ${betaLabel} › ${gammaLabel} › ${deltaLabel}`;
+}
+
+// ─── Google Sheets Submission ─────────────────────────────────────────────
+
+// Google Form submission
+const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfHE82pcD9zZVqfEP2HHYo57FXoPL5PP2G1QRQnRtj4mG-_rw/formResponse';
+
+// entry ID mapping:
+// entry.1768615046 → Student ID
+// entry.1551323473 → Session ID
+// entry.1332412327 → Path Taken
+// entry.199729262  → Score (out of 20)
+// entry.225638129  → Percentage
+// entry.834416156  → Q1-Q20 Answers
+
+async function submitToGoogleSheet(payload) {
+  try {
+    const formData = new FormData();
+    formData.append('entry.1768615046', payload.studentId);
+    formData.append('entry.1551323473', payload.sessionId);
+    formData.append('entry.1332412327', payload.path);
+    formData.append('entry.199729262',  String(payload.score));
+    formData.append('entry.225638129',  payload.percentage);
+    formData.append('entry.834416156',  payload.q1to20);
+
+    await fetch(FORM_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: formData
+    });
+    console.log('[Hartwell Exam] Results submitted.');
+  } catch (err) {
+    console.error('[Hartwell Exam] Submission error:', err);
+    // Fail silently — student experience unaffected
+  }
+}
+
+</script>
+</body>
+</html>
