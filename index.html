@@ -9,15 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0a0a;
-            --card-bg: #141414;
-            --border: #333;
-            --accent: #00ff88;
+            --bg: #080c14;
+            --card-bg: #0f1520;
+            --border: #2a3348;
+            --accent: #f0a500;
             --warning: #ff6b35;
             --danger: #ff4444;
             --text: #e0e0e0;
-            --text-muted: #888;
-            --text-dim: #ccc;
+            --text-muted: #8899bb;
+            --text-dim: #ccd;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,7 +31,7 @@
         }
 
         .header {
-            background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+            background: linear-gradient(180deg, #0f1520 0%, #080c14 100%);
             border-bottom: 1px solid var(--border);
             padding: 1rem 2rem;
             display: flex;
@@ -121,13 +121,15 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 80vh;
+            min-height: 60vh;
+            padding-top: 2rem;
         }
 
         #auth-screen .card {
             text-align: center;
-            max-width: 420px;
+            max-width: 400px;
             width: 100%;
+            padding: 1.5rem;
         }
 
         .field-label {
@@ -154,7 +156,7 @@
 
         .text-input:focus { outline: none; border-color: var(--accent); }
 
-        .field-group { margin-bottom: 1.25rem; }
+        .field-group { margin-bottom: 0.9rem; }
 
         /* ── Buttons ── */
         .btn {
@@ -172,7 +174,7 @@
             display: inline-block;
         }
 
-        .btn:hover { background: #00cc6a; transform: translateY(-1px); }
+        .btn:hover { background: #d49000; transform: translateY(-1px); }
         .btn:active { transform: translateY(0); }
         .btn:disabled { background: #2a2a2a; color: #555; cursor: not-allowed; transform: none; }
 
@@ -181,7 +183,7 @@
             color: var(--text-muted);
             border: 1px solid var(--border);
         }
-        .btn-secondary:hover { background: #1a1a1a; color: #fff; border-color: #555; }
+        .btn-secondary:hover { background: #131926; color: #fff; border-color: #445; }
 
         .btn-choice {
             background: #1a1a1a;
@@ -201,7 +203,7 @@
         .btn-choice:hover {
             border-color: var(--accent);
             color: #fff;
-            background: #1f1f1f;
+            background: #1a1f2a;
         }
 
         .btn-choice .choice-label {
@@ -231,8 +233,8 @@
         .notice strong { color: var(--warning); }
 
         .notice-info {
-            background: rgba(0, 255, 136, 0.06);
-            border-color: #00cc6a;
+            background: rgba(240, 165, 0, 0.06);
+            border-color: #d49000;
             color: #aaa;
         }
 
@@ -264,8 +266,8 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.7rem;
             color: var(--accent);
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
+            background: rgba(240, 165, 0, 0.1);
+            border: 1px solid rgba(240, 165, 0, 0.3);
             padding: 0.2rem 0.6rem;
             border-radius: 4px;
             letter-spacing: 0.1em;
@@ -337,7 +339,7 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.75rem;
             color: var(--accent);
-            background: rgba(0,255,136,0.08);
+            background: rgba(240,165,0,0.08);
             padding: 0.2rem 0.6rem;
             border-radius: 4px;
         }
@@ -385,7 +387,7 @@
 
         .choice-btn.selected {
             border-color: var(--accent);
-            background: rgba(0,255,136,0.07);
+            background: rgba(240,165,0,0.07);
             color: #fff;
         }
 
@@ -455,7 +457,7 @@
         }
 
         .answer-review-item.correct {
-            background: rgba(0,255,136,0.07);
+            background: rgba(240,165,0,0.07);
             border-left: 3px solid var(--accent);
         }
 
@@ -511,7 +513,7 @@
     <div class="container" style="display:flex;align-items:center;justify-content:center;min-height:80vh;">
         <div class="card" style="max-width:440px;width:100%;text-align:center;">
             <h2>Exam Authentication</h2>
-            <p style="color:var(--text-muted);margin-bottom:1.75rem;font-size:0.92rem;">Enter your Student ID and the exam access code to begin.</p>
+            <p style="color:var(--text-muted);margin-bottom:1rem;font-size:0.88rem;">Enter your Student ID and the exam access code to begin.</p>
 
             <div class="field-group" style="text-align:left;">
                 <label class="field-label" for="student-id">Student ID (8 digits)</label>
@@ -523,8 +525,8 @@
                 <input type="text" id="access-code" class="text-input" placeholder="XXXXXXXXXX" maxlength="12" autocomplete="off" style="text-transform:uppercase;letter-spacing:0.15em;">
             </div>
 
-            <div class="notice" style="margin-bottom:1.25rem;">
-                <strong>⚠ Grading Notice:</strong> Only your <strong>first attempt</strong> will be graded. Prepare thoroughly before starting.
+            <div class="notice" style="margin-bottom:0.9rem;font-size:0.83rem;padding:0.7rem 1rem;">
+                <strong>⚠ Grading Notice:</strong> Only your <strong>first attempt</strong> will be graded.
             </div>
 
             <button class="btn" onclick="authenticate()" style="width:100%;">Begin Exam</button>
@@ -1362,8 +1364,15 @@ function generateSessionId() {
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0, 0);
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // On mobile, briefly flash the container so the user sees the transition
+  el.style.opacity = '0';
+  requestAnimationFrame(() => {
+    el.style.transition = 'opacity 0.25s';
+    el.style.opacity = '1';
+  });
 }
 
 // ─── Screen 1: Auth ──────────────────────────────────────────────────────
