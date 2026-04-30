@@ -74,6 +74,31 @@
             letter-spacing: 0.04em;
         }
 
+        .timer-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            background: rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255,255,255,0.5);
+            padding: 0.25rem 0.7rem;
+            border-radius: 3px;
+            margin-left: 0.9rem;
+            letter-spacing: 0.06em;
+            display: none;
+        }
+        .timer-badge.warning { color: #ffd27a; border-color: #ffd27a; }
+        .timer-badge.critical {
+            color: #fff;
+            background: #b03030;
+            border-color: #b03030;
+            animation: timerPulse 1s ease-in-out infinite;
+        }
+        @keyframes timerPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.55; }
+        }
+
         .container {
             max-width: 820px;
             margin: 0 auto;
@@ -547,7 +572,10 @@
         <div class="logo">HARTWELL</div>
         <h1>Final Exam — Global Business Strategy</h1>
     </div>
-    <div class="secure-badge">MGMT 378</div>
+    <div style="display:flex;align-items:center;">
+        <div class="secure-badge">MGMT 378</div>
+        <div id="exam-timer" class="timer-badge" aria-live="polite">20:00</div>
+    </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════
@@ -608,6 +636,7 @@
                 <p>You will move through <strong>four situations</strong> — Alpha, Beta, Gamma, and Delta. At each situation, you'll make a strategic choice between two paths. That choice determines which 5 questions you answer.</p>
                 <p><strong>The choices themselves are not graded.</strong> Both paths are legitimate business decisions. Your grade comes from answering the 5 questions that follow your chosen path.</p>
                 <p>Total: 20 graded questions × 2.5 points = <strong>50 points</strong></p>
+                <p style="background:#fff3e0;border-left:4px solid #b03030;padding:0.85rem 1rem;margin-top:1rem;"><strong>⏱ Time limit: 20 minutes.</strong> A countdown timer will appear in the header the moment you proceed to Situation Alpha. When the timer hits 0:00, your exam will be submitted automatically with whatever you've answered so far. Plan accordingly — read the background carefully <em>before</em> you advance to Alpha. The clock does not start while you are on this background screen.</p>
             </div>
 
             <div class="mono-info">
@@ -617,7 +646,7 @@
         </div>
 
         <div style="text-align:center;margin-top:1rem;">
-            <button class="btn" onclick="showSituation('alpha')">I have read the company background. Proceed to Situation Alpha →</button>
+            <button class="btn" onclick="startExamTimer(); showSituation('alpha');">I have read the company background. Proceed to Situation Alpha →</button>
         </div>
     </div>
 </div>
@@ -1394,8 +1423,51 @@ const state = {
     gamma: {},
     delta: {}
   },
-  submitted: false
+  submitted: false,
+  timerStart: null,
+  timerInterval: null,
+  timerExpired: false
 };
+
+const EXAM_DURATION_MS = 20 * 60 * 1000; // 20 minutes
+
+function startExamTimer() {
+  if (state.timerStart) return; // already started
+  state.timerStart = Date.now();
+  const timerEl = document.getElementById('exam-timer');
+  if (timerEl) timerEl.style.display = 'inline-block';
+  state.timerInterval = setInterval(updateExamTimer, 500);
+  updateExamTimer();
+}
+
+function updateExamTimer() {
+  if (state.submitted || state.timerExpired) return;
+  const elapsed = Date.now() - state.timerStart;
+  const remaining = Math.max(0, EXAM_DURATION_MS - elapsed);
+  const mins = Math.floor(remaining / 60000);
+  const secs = Math.floor((remaining % 60000) / 1000);
+  const timerEl = document.getElementById('exam-timer');
+  if (timerEl) {
+    timerEl.textContent = `${mins}:${secs.toString().padStart(2,'0')}`;
+    timerEl.classList.remove('warning','critical');
+    if (remaining <= 60000) timerEl.classList.add('critical');
+    else if (remaining <= 5 * 60000) timerEl.classList.add('warning');
+  }
+  if (remaining <= 0) {
+    state.timerExpired = true;
+    clearInterval(state.timerInterval);
+    forceSubmitOnTimeout();
+  }
+}
+
+function forceSubmitOnTimeout() {
+  if (state.submitted) return;
+  // Fill any unanswered questions with blank/null so submitExam can score them as wrong
+  // (state.answers already only contains answered ones; submitExam treats undefined as incorrect)
+  alert('Time is up. Your exam is being submitted automatically with your current answers.');
+  // Bypass the delta-count guard by directly tallying
+  finalizeExamSubmission(true);
+}
 
 // ─── Utility ────────────────────────────────────────────────────────────────
 
@@ -1648,20 +1720,45 @@ function submitExam() {
     document.getElementById('submit-warning').style.display = 'block';
     return;
   }
+  finalizeExamSubmission(false);
+}
+
+function finalizeExamSubmission(timedOut) {
+  if (state.submitted) return;
+  // Stop the timer if running
+  if (state.timerInterval) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+  }
 
   // Tally score
   let score = 0;
   const allAnswers = []; // [{section, qKey, qIndex, chosen, correct, isCorrect, stem}]
 
   const sections = [
-    { key: 'alpha', qSet: 'alpha_' + state.alphaChoice },
-    { key: 'beta',  qSet: 'beta_'  + state.betaChoice  },
-    { key: 'gamma', qSet: 'gamma_' + state.gammaChoice },
-    { key: 'delta', qSet: 'delta_' + state.deltaChoice }
+    { key: 'alpha', qSet: state.alphaChoice ? 'alpha_' + state.alphaChoice : null },
+    { key: 'beta',  qSet: state.betaChoice  ? 'beta_'  + state.betaChoice  : null },
+    { key: 'gamma', qSet: state.gammaChoice ? 'gamma_' + state.gammaChoice : null },
+    { key: 'delta', qSet: state.deltaChoice ? 'delta_' + state.deltaChoice : null }
   ];
 
   sections.forEach(sec => {
-    const qs = questions[sec.qSet];
+    const qs = sec.qSet ? questions[sec.qSet] : null;
+    if (!qs) {
+      // Section never reached (timeout) — record 5 unanswered slots
+      for (let i = 0; i < 5; i++) {
+        allAnswers.push({
+          section: sec.key.toUpperCase(),
+          qSet: sec.qSet || '(not reached)',
+          qIndex: i,
+          chosen: null,
+          correct: null,
+          isCorrect: false,
+          stem: '(question not reached — time expired)'
+        });
+      }
+      return;
+    }
     for (let i = 0; i < 5; i++) {
       const chosen = state.answers[sec.key][i];
       const correct = qs[i].correct;
@@ -1720,6 +1817,16 @@ function submitExam() {
   submitToGoogleSheet(payload);
 
   state.submitted = true;
+  if (timedOut) {
+    const note = document.createElement('div');
+    note.className = 'notice';
+    note.style.background = '#fff3e0';
+    note.style.borderLeft = '4px solid #b03030';
+    note.style.margin = '0 0 1rem 0';
+    note.innerHTML = '<strong>⏱ Time expired.</strong> Your exam was submitted automatically. Unanswered questions are scored as incorrect.';
+    const resultsScreen = document.getElementById('results-screen');
+    if (resultsScreen) resultsScreen.insertBefore(note, resultsScreen.firstChild);
+  }
   showScreen('results-screen');
 }
 
